@@ -52,7 +52,7 @@ func defaultInterpreterConfig() InterpreterConfig {
 	}
 }
 
-func NewInterpreter(opts ...Option) *Interpreter {
+func NewInterpreter(opts ...InterpreterOption) *Interpreter {
 	config := defaultInterpreterConfig()
 	for _, opt := range opts {
 		opt(&config)
@@ -60,11 +60,17 @@ func NewInterpreter(opts ...Option) *Interpreter {
 	return &Interpreter{Config: config}
 }
 
-type Option func(*InterpreterConfig)
+type InterpreterOption func(*InterpreterConfig)
 
-func WithIgnoreDefOfNonNameVals(vals []string) Option {
+func WithIgnoreDefOfNonNameVals(vals []string) InterpreterOption {
 	return func(c *InterpreterConfig) {
 		c.IgnoreDefOfNonNameVals = vals
+	}
+}
+
+func WithInterpreterConfig(interpreterConfig InterpreterConfig) InterpreterOption {
+	return func(c *InterpreterConfig) {
+		*c = interpreterConfig
 	}
 }
 

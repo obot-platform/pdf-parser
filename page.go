@@ -61,10 +61,8 @@ func (r *Reader) NumPage() int {
 }
 
 // GetPlainText returns all the text in the PDF file
-func (r *Reader) GetPlainText(interpreter *Interpreter) (reader io.Reader, err error) {
-	if interpreter == nil {
-		interpreter = NewInterpreter()
-	}
+func (r *Reader) GetPlainText(interpreterOpts ...InterpreterOption) (reader io.Reader, err error) {
+	interpreter := NewInterpreter(interpreterOpts...)
 	pages := r.NumPage()
 	var buf bytes.Buffer
 	fonts := make(map[string]*Font)
@@ -76,7 +74,7 @@ func (r *Reader) GetPlainText(interpreter *Interpreter) (reader io.Reader, err e
 				fonts[name] = &f
 			}
 		}
-		text, err := p.GetPlainText(fonts, interpreter)
+		text, err := p.GetPlainText(fonts, WithInterpreterConfig(interpreter.Config))
 		if err != nil {
 			return &bytes.Buffer{}, err
 		}
@@ -163,10 +161,8 @@ func (f Font) Width(code int) float64 {
 }
 
 // Encoder returns the encoding between font code point sequences and UTF-8.
-func (f Font) Encoder(interpreter *Interpreter) TextEncoding {
-	if interpreter == nil {
-		interpreter = NewInterpreter()
-	}
+func (f Font) Encoder(interpreterOpts ...InterpreterOption) TextEncoding {
+	interpreter := NewInterpreter(interpreterOpts...)
 	if f.enc == nil { // caching the Encoder, so we don't have to continually parse charmap
 		f.enc = f.getEncoder(*interpreter)
 	}
@@ -492,10 +488,8 @@ type gstate struct {
 
 // GetPlainText returns the page's all text without format.
 // fonts can be passed in (to improve parsing performance) or left nil
-func (p Page) GetPlainText(fonts map[string]*Font, interpreter *Interpreter) (result string, err error) {
-	if interpreter == nil {
-		interpreter = NewInterpreter()
-	}
+func (p Page) GetPlainText(fonts map[string]*Font, interpreterOpts ...InterpreterOption) (result string, err error) {
+	interpreter := NewInterpreter(interpreterOpts...)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -542,7 +536,7 @@ func (p Page) GetPlainText(fonts map[string]*Font, interpreter *Interpreter) (re
 				panic("bad TL")
 			}
 			if font, ok := fonts[args[0].Name()]; ok {
-				enc = font.Encoder(interpreter)
+				enc = font.Encoder(interpreterOpts...)
 			} else {
 				enc = &nopEncoder{}
 			}
@@ -584,10 +578,8 @@ type Column struct {
 type Columns []*Column
 
 // GetTextByColumn returns the page's all text grouped by column
-func (p Page) GetTextByColumn(interpreter *Interpreter) (Columns, error) {
-	if interpreter == nil {
-		interpreter = NewInterpreter()
-	}
+func (p Page) GetTextByColumn(interpreterOpts ...InterpreterOption) (Columns, error) {
+	interpreter := NewInterpreter(interpreterOpts...)
 	result := Columns{}
 	var err error
 
@@ -657,10 +649,8 @@ type Row struct {
 type Rows []*Row
 
 // GetTextByRow returns the page's all text grouped by rows
-func (p Page) GetTextByRow(interpreter *Interpreter) (Rows, error) {
-	if interpreter == nil {
-		interpreter = NewInterpreter()
-	}
+func (p Page) GetTextByRow(interpreterOpts ...InterpreterOption) (Rows, error) {
+	interpreter := NewInterpreter(interpreterOpts...)
 	result := Rows{}
 	var err error
 
@@ -756,7 +746,7 @@ func (p Page) walkTextBlocks(interpreter Interpreter, walker func(enc TextEncodi
 			}
 
 			if font, ok := fonts[args[0].Name()]; ok {
-				enc = font.Encoder(&interpreter)
+				enc = font.Encoder(WithInterpreterConfig(interpreter.Config))
 			} else {
 				enc = &nopEncoder{}
 			}
@@ -794,10 +784,8 @@ func (p Page) walkTextBlocks(interpreter Interpreter, walker func(enc TextEncodi
 }
 
 // Content returns the page's content.
-func (p Page) Content(interpreter *Interpreter) Content {
-	if interpreter == nil {
-		interpreter = NewInterpreter()
-	}
+func (p Page) Content(interpreterOpts ...InterpreterOption) Content {
+	interpreter := NewInterpreter(interpreterOpts...)
 
 	strm := p.V.Key("Contents")
 	var enc TextEncoding = &nopEncoder{}
@@ -929,7 +917,7 @@ func (p Page) Content(interpreter *Interpreter) Content {
 			}
 			f := args[0].Name()
 			g.Tf = p.Font(f)
-			enc = g.Tf.Encoder(interpreter)
+			enc = g.Tf.Encoder(WithInterpreterConfig(interpreter.Config))
 			if enc == nil {
 				if DebugOn {
 					println("no cmap for", f)
