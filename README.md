@@ -8,7 +8,7 @@ Features
 
 ## Install:
 
-`go get -u github.com/ledongthuc/pdf`
+`go get -u github.com/iwilltry42/pdf`
 
 
 ## Read plain text
