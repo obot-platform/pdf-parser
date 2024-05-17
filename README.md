@@ -1,8 +1,6 @@
 # PDF Reader
 
-[![Built with WeBuild](https://raw.githubusercontent.com/webuild-community/badge/master/svg/WeBuild.svg)](https://webuild.community)
-
-A simple Go library which enables reading PDF files. Forked from https://github.com/rsc/pdf
+A simple Go library which enables reading PDF files. Forked from github.com/ledongthuc/pdf > https://github.com/rsc/pdf
 
 Features
   - Get plain text content (without format)
@@ -22,7 +20,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/ledongthuc/pdf"
+	"github.com/iwilltry42/pdf"
 )
 
 func main() {
@@ -94,7 +92,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ledongthuc/pdf"
+	"github.com/iwilltry42/pdf"
 )
 
 func main() {
