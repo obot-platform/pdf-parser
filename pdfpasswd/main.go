@@ -12,7 +12,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/iwilltry42/pdf"
+	"github.com/obot-platform/pdf-parser"
 )
 
 var (
